@@ -57,4 +57,6 @@ internal class SearchPresenter internal constructor(
         view?.displayLoading(false)
         view?.displayError()
     }
+
+    fun getCurrentView() = view
 }
