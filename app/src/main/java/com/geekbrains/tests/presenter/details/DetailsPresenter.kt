@@ -32,4 +32,6 @@ internal class DetailsPresenter internal constructor(
     }
 
     fun getView() = view
+
+    fun getCurrentCount() = count
 }
