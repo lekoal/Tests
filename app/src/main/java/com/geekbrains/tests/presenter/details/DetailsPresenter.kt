@@ -30,4 +30,6 @@ internal class DetailsPresenter internal constructor(
     override fun onDetach() {
         this.view = null
     }
+
+    fun getView() = view
 }
