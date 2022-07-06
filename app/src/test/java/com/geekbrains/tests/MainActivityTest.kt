@@ -16,6 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.geekbrains.tests.presenter.search.SearchPresenter
 import com.geekbrains.tests.repository.GitHubRepository
 import com.geekbrains.tests.view.search.MainActivity
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -138,5 +139,10 @@ class MainActivityTest {
             presenter.onDetach()
             assertNotSame(it, presenter.getCurrentView())
         }
+    }
+
+    @After
+    fun close() {
+        scenario.close()
     }
 }
