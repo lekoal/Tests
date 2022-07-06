@@ -124,6 +124,7 @@ class MainActivityTest {
     @Test
     fun onAttachView_IsSuccess() {
         scenario.onActivity {
+            assertNotSame(it, presenter.getCurrentView())
             presenter.onAttach(it)
             assertSame(it, presenter.getCurrentView())
         }
