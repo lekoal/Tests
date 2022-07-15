@@ -28,13 +28,15 @@ class SearchPresenterTest {
     fun setUp() {
         //Обязательно для аннотаций "@Mock"
         //Раньше было @RunWith(MockitoJUnitRunner.class) в аннотации к самому классу (SearchPresenterTest)
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         //Создаем Презентер, используя моки Репозитория и Вью, проинициализированные строкой выше
-        presenter = SearchPresenter(viewContract, repository)
+        presenter = SearchPresenter(repository)
+
     }
 
     @Test //Проверим вызов метода searchGitHub() у нашего Репозитория
     fun searchGitHub_Test() {
+        presenter.onAttach(viewContract)
         val searchQuery = "some query"
         //Запускаем код, функционал которого хотим протестировать
         presenter.searchGitHub("some query")
@@ -44,6 +46,7 @@ class SearchPresenterTest {
 
     @Test //Проверяем работу метода handleGitHubError()
     fun handleGitHubError_Test() {
+        presenter.onAttach(viewContract)
         //Вызываем у Презентера метод handleGitHubError()
         presenter.handleGitHubError()
         //Проверяем, что у viewContract вызывается метод displayError()
@@ -54,6 +57,7 @@ class SearchPresenterTest {
 
     @Test //Для начала проверим, как приходит ответ сервера
     fun handleGitHubResponse_ResponseUnsuccessful() {
+        presenter.onAttach(viewContract)
         //Создаем мок ответа сервера с типом Response<SearchResponse?>?
         val response = mock(Response::class.java) as Response<SearchResponse?>
         //Описываем правило, что при вызове метода isSuccessful должен возвращаться false
@@ -64,6 +68,7 @@ class SearchPresenterTest {
 
     @Test //Теперь проверим, как у нас обрабатываются ошибки
     fun handleGitHubResponse_Failure() {
+        presenter.onAttach(viewContract)
         //Создаем мок ответа сервера с типом Response<SearchResponse?>?
         val response = mock(Response::class.java) as Response<SearchResponse?>
         //Описываем правило, что при вызове метода isSuccessful должен возвращаться false
@@ -80,6 +85,7 @@ class SearchPresenterTest {
 
     @Test //Проверим порядок вызова методов viewContract
     fun handleGitHubResponse_ResponseFailure_ViewContractMethodOrder() {
+        presenter.onAttach(viewContract)
         val response = mock(Response::class.java) as Response<SearchResponse?>
         `when`(response.isSuccessful).thenReturn(false)
         presenter.handleGitHubResponse(response)
@@ -93,6 +99,7 @@ class SearchPresenterTest {
 
     @Test //Проверим пустой ответ сервера
     fun handleGitHubResponse_ResponseIsEmpty() {
+        presenter.onAttach(viewContract)
         val response = mock(Response::class.java) as Response<SearchResponse?>
         `when`(response.body()).thenReturn(null)
         //Вызываем handleGitHubResponse()
@@ -103,6 +110,7 @@ class SearchPresenterTest {
 
     @Test //Теперь проверим непустой ответ сервера
     fun handleGitHubResponse_ResponseIsNotEmpty() {
+        presenter.onAttach(viewContract)
         val response = mock(Response::class.java) as Response<SearchResponse?>
         `when`(response.body()).thenReturn(mock(SearchResponse::class.java))
         //Вызываем handleGitHubResponse()
@@ -113,6 +121,7 @@ class SearchPresenterTest {
 
     @Test //Проверим как обрабатывается случай, если ответ от сервера пришел пустой
     fun handleGitHubResponse_EmptyResponse() {
+        presenter.onAttach(viewContract)
         val response = mock(Response::class.java) as Response<SearchResponse?>
         //Устанавливаем правило, что ответ успешный
         `when`(response.isSuccessful).thenReturn(true)
@@ -129,6 +138,7 @@ class SearchPresenterTest {
 
     @Test //Пришло время проверить успешный ответ, так как все остальные случаи мы уже покрыли тестами
     fun handleGitHubResponse_Success() {
+        presenter.onAttach(viewContract)
         //Мокаем ответ
         val response = mock(Response::class.java) as Response<SearchResponse?>
         //Мокаем тело ответа
@@ -148,5 +158,20 @@ class SearchPresenterTest {
 
         //Убеждаемся, что ответ от сервера обрабатывается корректно
         verify(viewContract, times(1)).displaySearchResults(searchResults, 101)
+    }
+
+    @Test
+    fun onAttach_Success() {
+        assertNotSame(viewContract, presenter.getCurrentView())
+        presenter.onAttach(viewContract)
+        assertSame(viewContract, presenter.getCurrentView())
+    }
+
+    @Test
+    fun onDetach_Success() {
+        presenter.onAttach(viewContract)
+        assertSame(viewContract, presenter.getCurrentView())
+        presenter.onDetach()
+        assertNotSame(viewContract, presenter.getCurrentView())
     }
 }
